@@ -1,0 +1,12 @@
+name: Daily Cleanup
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # 毎日03:00 UTC（日本時間12:00）
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say Hello
+        run: echo "This is a scheduled GitHub Actions run."
