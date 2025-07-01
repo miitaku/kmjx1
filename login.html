@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>X認証ログイン</title>
+  </head>
+  <body>
+    <h1>Xアカウントでログイン</h1>
+    <a id="loginBtn" href="#">ログイン</a>
+
+    <script>
+      const client_id = "YOUR_CLIENT_ID";
+      const redirect_uri = "https://yourdomain.com/callback";  // 後でサーバーに合わせて変更
+      const scope = "tweet.read users.read follows.read follows.write offline.access";
+      const state = "kmjx1login"; // 任意の文字列でOK
+      const code_challenge = "challenge"; // PKCE対応必須（後ほどJSで生成）
+      const code_challenge_method = "plain";
+
+      document.getElementById("loginBtn").href =
+        `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${encodeURIComponent(scope)}&state=${state}&code_challenge=${code_challenge}&code_challenge_method=${code_challenge_method}`;
+    </script>
+  </body>
+</html>
