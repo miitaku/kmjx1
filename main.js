@@ -1,29 +1,21 @@
 // main.js
 const { TwitterApi } = require('twitter-api-v2');
 const fs = require('fs');
-
-// 認証情報
-const config = require('./config');
 const whitelist = require('./whitelist.json');
-
-// クライアント設定
-const client = new TwitterApi({
-  appKey: config.API_KEY,
-  appSecret: config.API_SECRET,
-  accessToken: config.ACCESS_TOKEN,
-  accessSecret: config.ACCESS_TOKEN_SECRET,
-});
-const rwClient = client.readWrite;
 
 // ユーティリティ関数
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const isWhitelisted = (username) => whitelist.includes(username.toLowerCase());
-(async () => {
+
+async function runBotWithToken(access_token) {
+  const client = new TwitterApi(access_token); // OAuth2用
+  const rwClient = client.readWrite;
+
   try {
     const me = await rwClient.v2.me();
     const userId = me.data.id;
 
-    // フォロー中ユーザー取得
+    // フォロー中取得
     const following = await rwClient.v2.following(userId, { asPaginator: true });
     const followingUsers = [];
     for await (const user of following) followingUsers.push(user);
@@ -33,7 +25,7 @@ const isWhitelisted = (username) => whitelist.includes(username.toLowerCase());
     const followerUsernames = new Set();
     for await (const user of followers) followerUsernames.add(user.username.toLowerCase());
 
-    // 片思い削除処理
+    // 片思い解除
     for (const user of followingUsers) {
       const uname = user.username.toLowerCase();
       if (!followerUsernames.has(uname) && !isWhitelisted(uname)) {
@@ -42,8 +34,9 @@ const isWhitelisted = (username) => whitelist.includes(username.toLowerCase());
         await sleep(1500);
       }
     }
-    // 自動フォロー処理（任意の候補者ID列）
-    const candidates = ['example1', 'example2', 'example3']; // ← 適宜更新 or 外部化
+
+    // 自動フォロー
+    const candidates = ['example1', 'example2', 'example3']; // 任意に変更
     let followCount = 0;
 
     for (const uname of candidates) {
@@ -66,8 +59,10 @@ const isWhitelisted = (username) => whitelist.includes(username.toLowerCase());
       }
     }
 
-    console.log('✅ 自動整理＆フォロー完了');
+    console.log('✅ Bot完了（ユーザーID: ' + userId + '）');
   } catch (error) {
-    console.error('❌ エラー発生:', error);
+    console.error('❌ Botエラー:', error);
   }
-})();
+}
+
+module.exports = { runBotWithToken };
