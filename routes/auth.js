@@ -1,57 +1,66 @@
-// routes/auth.js
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const crypto = require('crypto');
+const querystring = require('querystring');
+require('dotenv').config();
 
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI;
+const CLIENT_ID = process.env.X_CLIENT_ID;
+const REDIRECT_URI = 'https://kmjx1.onrender.com/auth/callback';
+const SCOPE = 'tweet.read tweet.write users.read offline.access';
+const STATE = crypto.randomBytes(10).toString('hex');
 
-// ログインページを表示
-router.get('/', (req, res) => {
-  res.render('login', {
+// PKCE用 code_challenge
+const codeVerifier = crypto.randomBytes(32).toString('hex');
+const codeChallenge = crypto
+  .createHash('sha256')
+  .update(codeVerifier)
+  .digest('base64')
+  .replace(/=/g, '')
+  .replace(/\+/g, '-')
+  .replace(/\//g, '_');
+
+// ④: 認可リクエスト
+router.get('/auth/twitter', (req, res) => {
+  const authUrl = 'https://twitter.com/i/oauth2/authorize?' + querystring.stringify({
+    response_type: 'code',
     client_id: CLIENT_ID,
-    redirect_uri: REDIRECT_URI
+    redirect_uri: REDIRECT_URI,
+    scope: SCOPE,
+    state: STATE,
+    code_challenge: codeChallenge,
+    code_challenge_method: 'S256',
   });
+
+  res.redirect(authUrl);
 });
 
-// コールバック処理（アクセストークン取得）
-router.get('/callback', async (req, res) => {
-  const code = req.query.code;
+// ⑤: コールバックでトークン取得
+router.get('/auth/callback', async (req, res) => {
+  const { code, state } = req.query;
 
-  if (!code) {
-    return res.status(400).send('認証コードが見つかりませんでした。');
-  }
+  if (state !== STATE) return res.status(403).send('Invalid state');
 
   try {
-    const tokenResponse = await axios.post(
+    const response = await axios.post(
       'https://api.twitter.com/2/oauth2/token',
-      new URLSearchParams({
-        code,
+      querystring.stringify({
         grant_type: 'authorization_code',
-        client_id: CLIENT_ID,
+        code,
         redirect_uri: REDIRECT_URI,
-        code_verifier: 'challenge' // PKCE使用しない場合は"challenge"固定
+        client_id: CLIENT_ID,
+        code_verifier: codeVerifier,
       }),
       {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`
-        }
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       }
     );
 
-    const accessToken = tokenResponse.data.access_token;
-    req.session.accessToken = accessToken;
-
-    res.send(`
-      <h2>✅ ログイン成功！</h2>
-      <p>Access Token:</p>
-      <code>${accessToken}</code>
-    `);
-  } catch (error) {
-    console.error('❌ 認証エラー:', error.response?.data || error.message);
-    res.status(500).send('ログインに失敗しました。');
+    const accessToken = response.data.access_token;
+    res.send(`✅ ログイン成功！アクセストークン: ${accessToken}`);
+  } catch (err) {
+    console.error('❌ トークン取得エラー:', err.response?.data || err.message);
+    res.status(500).send('認証失敗');
   }
 });
 
