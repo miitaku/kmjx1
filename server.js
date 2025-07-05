@@ -8,12 +8,20 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// login.html を返すルート
+// 静的ファイルの提供（HTMLやJSなど）
+app.use(express.static(path.join(__dirname)));
+
+// ✅ トップページ: index.html を表示
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// ✅ ログインページ: login.html を表示
+app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-// Twitter OAuth2 コールバック処理
+// ✅ Twitter OAuth2 コールバック処理
 app.get('/callback', async (req, res) => {
   const code = req.query.code;
 
@@ -25,7 +33,7 @@ app.get('/callback', async (req, res) => {
         client_id: process.env.CLIENT_ID,
         client_secret: process.env.CLIENT_SECRET,
         redirect_uri: process.env.REDIRECT_URI,
-        code_verifier: 'challenge', // 本番ではPKCEを安全に管理
+        code_verifier: 'challenge', // ★ 本番ではPKCEの適切な管理を！
       },
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -33,15 +41,15 @@ app.get('/callback', async (req, res) => {
     });
 
     const accessToken = response.data.access_token;
-    res.send(`✅ アクセストークン: ${accessToken}`);
+    res.send(`✅ アクセストークン取得成功: ${accessToken}`);
   } catch (error) {
     console.error('❌ トークン取得エラー:', error.response?.data || error.message);
-    res.status(500).send('トークン取得失敗');
+    res.status(500).send('トークン取得に失敗しました');
   }
 });
 
-// ✅ Render対応：PORTは環境変数から取得
+// ✅ Renderなど対応用ポート指定
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 サーバー起動: http://localhost:${PORT}/`);
+  console.log(`🚀 サーバー起動: http://localhost:${PORT}`);
 });
