@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Xログイン</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    a.login-btn {
+      display: inline-block;
+      padding: 12px 20px;
+      background-color: #1da1f2;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a.login-btn:hover {
+      background-color: #0d8ddb;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Xでログイン</h2>
+    <a class="login-btn" href="https://twitter.com/i/oauth2/authorize?response_type=code&client_id=<%= client_id %>&redirect_uri=<%= redirect_uri %>&scope=tweet.read%20users.read%20offline.access&state=state&code_challenge=challenge&code_challenge_method=plain">
+      Xでログインする
+    </a>
+  </div>
+</body>
+</html>

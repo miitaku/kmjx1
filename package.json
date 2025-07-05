@@ -1,26 +1,22 @@
 {
   "name": "kmjx1",
   "version": "1.0.0",
-  "description": "kmjX1システム ターミナル→github",
+  "description": "Xログイン認証アプリ（Renderデプロイ対応）",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/miitaku/kmjx1.git"
+  "dependencies": {
+    "axios": "^1.6.7",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   },
   "keywords": [],
   "author": "miitaku",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/miitaku/kmjx1/issues"
-  },
-  "homepage": "https://github.com/miitaku/kmjx1#readme",
-  "dependencies": {
-    "axios": "^1.10.0",
-    "dotenv": "^17.0.0",
-    "express": "^5.1.0",
-    "open": "^10.1.2"
-  }
+  "license": "MIT"
 }
