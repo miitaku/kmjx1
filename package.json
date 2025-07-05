@@ -2,17 +2,16 @@
   "name": "kmjx1",
   "version": "1.0.0",
   "description": "kmjX1システム ターミナル→github",
-  "main": "main.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/miitaku/kmjx1.git"
+    "url": "https://github.com/miitaku/kmjx1.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "miitaku",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/miitaku/kmjx1/issues"
