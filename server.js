@@ -7,21 +7,19 @@ const path = require('path');
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname))); // HTML表示対応
 
-// 静的ファイルの提供（HTMLやJSなど）
-app.use(express.static(path.join(__dirname)));
-
-// ✅ トップページ: index.html を表示
+// index.html（トップページ）
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// ✅ ログインページ: login.html を表示
+// login.html（Xログインページ）
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-// ✅ Twitter OAuth2 コールバック処理
+// Twitter OAuth2 コールバック処理
 app.get('/callback', async (req, res) => {
   const code = req.query.code;
 
@@ -33,7 +31,7 @@ app.get('/callback', async (req, res) => {
         client_id: process.env.CLIENT_ID,
         client_secret: process.env.CLIENT_SECRET,
         redirect_uri: process.env.REDIRECT_URI,
-        code_verifier: 'challenge', // ★ 本番ではPKCEの適切な管理を！
+        code_verifier: 'challenge', // テスト用: 実運用ではPKCEを生成管理
       },
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -41,15 +39,15 @@ app.get('/callback', async (req, res) => {
     });
 
     const accessToken = response.data.access_token;
-    res.send(`✅ アクセストークン取得成功: ${accessToken}`);
+    res.send(`✅ アクセストークン: ${accessToken}`);
   } catch (error) {
     console.error('❌ トークン取得エラー:', error.response?.data || error.message);
-    res.status(500).send('トークン取得に失敗しました');
+    res.status(500).send('トークン取得失敗');
   }
 });
 
-// ✅ Renderなど対応用ポート指定
+// Render対応
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 サーバー起動: http://localhost:${PORT}`);
+  console.log(`🚀 サーバー起動: http://localhost:${PORT}/`);
 });
